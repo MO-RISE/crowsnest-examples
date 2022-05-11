@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+
+  recorder:
+    image: ghcr.io/mo-rise/crowsnest-toolbox:v0.4.2
+    restart: always
+    network_mode: "host"
+    command:
+      [
+        "mosquitto_sub -v -t '<topic>' | prepend_timestamp >> crowsnest.log"
+      ]
+    volumes:
+      - /opt/recordings:/recordings
+    working_dir: /recordings
+
+  logrotate:
+    image: linkyard/logrotate:1.0.0
+    restart: always
+    environment:
+      - LOGROTATE_CRON=0 0 * * *
+    volumes:
+      - /opt/recordings:/logs
+      - ./logrotate.conf:/etc/logrotate.conf
